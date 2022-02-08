@@ -2,19 +2,42 @@
 import random
 import pandas as pd
 import copy
+import argparse
 random.seed("1024")
 
 
+
+
+parser = argparse.ArgumentParser(description='Give the minimum and maxim lenghth of peptide and MHC moelcule')
+
+parser.add_argument('--sample_num',type=int,default = 100 ,required=True, help = "number of true samples to generate")
+parser.add_argument('--decoys',type=int,default = 99 ,required=False, help = "number of decoys per sample")
+parser.add_argument('--peptide_min',type=int,default = 7 ,required=False, help = "peptide maximum length")
+parser.add_argument('--peptide_max',type=int,default = 15 ,required=False,  help = "peptide maximum length")
+parser.add_argument('--mhc_min',type=int,default = 15 ,required=False,  help = "MHC minimum length")
+parser.add_argument('--mhc_max',type=int,default = 35 ,required=False,  help = "MHC maximum length")
+args = parser.parse_args()
+
+
+args = parser.parse_args()
+
+
+
+
+
+
+
+
 # %%
-print(len("YYAGYREKYRQTDVNKLYLRYDSYTWAEWAYEWY"))
+# print(len("YYAGYREKYRQTDVNKLYLRYDSYTWAEWAYEWY"))
 
 
 # %%
 amino_acids = "G A L M F W K Q E S P V I C Y H R N D T"
 amino_acid_letter = amino_acids.split()
-print(len(amino_acid_letter)-1)
-amino_acid_letter
-# %
+# print(len(amino_acid_letter)-1)
+# amino_acid_letter
+
 
 
 def random_letter_maker(N):
@@ -30,11 +53,12 @@ amino_acids
 def peptide_decoy_maker(a_list_peptide, count=99):
     """
     args:
-        a_list(list of tuples): a list of splitted peptides and amino acids
-        count(s)
+        a_list(list): a list of splitted peptides and amino acids, index 1,3,5 are the spot of binding
+        count(int): number of decoys per sample
 
     returns:
-        temp
+        temp_set(set): a set of decoys
+        labels(list): labels of the decoys ("False")
     """
     temp_set = set()
 
@@ -77,24 +101,24 @@ def peptide_decoy_maker(a_list_peptide, count=99):
     return list(temp_set), labels
 
 
-peptide_decoy_maker(['', 'Y', '', 'A', '', 'Q', 'VNWWPS'], count=100)
+# peptide_decoy_maker(['', 'Y', '', 'A', '', 'Q', 'VNWWPS'], count=100)
 
 # %%
 
 
 def peptide_mhc_sequence(peptide_part_len, binding_pairs, index_selection):
-
+    
     first_part_peptide = random_letter_maker(peptide_part_len[0])
     second_part_peptide = random_letter_maker(peptide_part_len[1])
     third_part_peptide = random_letter_maker(peptide_part_len[2])
-    fourth_part_peptide = random_letter_maker(peptide_part_len[3])
+    # fourth_part_peptide = random_letter_maker(peptide_part_len[3])
 
     first_amino_peptide = binding_pairs[0][index_selection]
     second_amino_peptide = binding_pairs[1][index_selection]
     third_amino_peptide = binding_pairs[2][index_selection]
 
     sequences_list_peptide = [first_part_peptide, first_amino_peptide, second_part_peptide,
-                              second_amino_peptide, third_part_peptide, third_amino_peptide, fourth_part_peptide]
+                              second_amino_peptide, third_part_peptide, third_amino_peptide]
 
     peptide_str = "".join(sequences_list_peptide)
 
@@ -111,7 +135,7 @@ def peptide_maker(amino_pairs=[("A", "G"), ("Y", "E"), ("Q", "N")], peptide_part
     :param amino_pairs: a list of tuples of pairing amino acids e.g. [("A","G"),("Y","E"),("Q","N")]
     :param peptide_part_len: a tuple of peptide length around each amino acid first_seq|peptide1|second_seq|peptide2|third_seq|peptide3|foruth_seq|foruth_seq
     :param mhc_part_len: a tuple of peptide length around each amino acid first_seq|peptide1|second_seq|peptide2|third_seq|peptide3|foruth_seq|foruth_seq
-    :param repeat: if repate is true, two mathich seq would occure in mhc
+    :param repeat: if repate is true, two mathing seq would occure in mhc (NOT IN THIS VERSION)
     :random_choice: if True, the order of binding letters tuples will be random 
 
     :returns: amindo acid sequence, n_flanc, c_flank, mhc sequence
@@ -126,12 +150,12 @@ def peptide_maker(amino_pairs=[("A", "G"), ("Y", "E"), ("Q", "N")], peptide_part
 
     # checking the length of petide
     peptide_lenghth = sum(peptide_part_len) + len(binding_pairs)
-    if peptide_lenghth < 7 and peptide_lenghth > 15:
+    if peptide_lenghth < args.peptide_min and peptide_lenghth > args.peptide_max:
         raise ValueError(
             'sum of peptide length should be 7<= peptide length <=15')
 
     mhc_lenghth = sum(mhc_part_len) + len(binding_pairs)
-    if mhc_lenghth < 15 and mhc_lenghth > 35:
+    if mhc_lenghth < args.mhc_min and mhc_lenghth > args.mhc_max:
         raise ValueError(
             'sum of peptide length should be 7<= peptide length <=15')
 
@@ -149,7 +173,7 @@ def peptide_maker(amino_pairs=[("A", "G"), ("Y", "E"), ("Q", "N")], peptide_part
     c_flanc = random_letter_maker(c_flank_len)
 
     # peptide sequence
-
+    
     peptidseq_str, peptidseq_list = peptide_mhc_sequence(
         peptide_part_len, binding_pairs, index_selection)
     Mhcseq_str, Mhcseq_list = peptide_mhc_sequence(
@@ -178,12 +202,11 @@ def peptide_maker(amino_pairs=[("A", "G"), ("Y", "E"), ("Q", "N")], peptide_part
 
 # %%
 def multiple_seq_maker(pairs=[("A", "G"), ("Y", "E"), ("Q", "N"), ("P", "T"), ("M", "K"), ("F", "W")],
-                       len_binding_pairs=4, number_of_decoys=99):
+                       len_binding_pairs=3, number_of_decoys=99):
 
     numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    # peptide_lenghth = 0
-    # mhc_lenghth = 0
+
 
     while True:
 
@@ -194,11 +217,9 @@ def multiple_seq_maker(pairs=[("A", "G"), ("Y", "E"), ("Q", "N"), ("P", "T"), ("
         peptide_lenghth = sum(peptide_nonbinding_lenghts) + len_binding_pairs
         mhc_lenghth = sum(Mhc_nonbinding_length) + len_binding_pairs
 
-        if (peptide_lenghth > 7 and peptide_lenghth < 15) and (mhc_lenghth > 15 and mhc_lenghth < 35):
+        if (peptide_lenghth > args.peptide_min and peptide_lenghth < args.peptide_max) and (mhc_lenghth > args.mhc_min and mhc_lenghth < args.mhc_max):
             break
 
-    # print(peptide_lenghth)
-    # print(mhc_lenghth)
     seqs, deqs = peptide_maker(amino_pairs=pairs, peptide_part_len=peptide_nonbinding_lenghts,
                                mhc_part_len=Mhc_nonbinding_length, n_flank_len=15, c_flank_len=15, repeat=False, random_choice=True,
                                decoy_count=number_of_decoys)
@@ -207,13 +228,10 @@ def multiple_seq_maker(pairs=[("A", "G"), ("Y", "E"), ("Q", "N"), ("P", "T"), ("
 
 
 # %%
-multiple_seq_maker()
-
-# %%
-# peptide_maker(peptide_part_len = (0,0,0,6),\
-#                                        mhc_part_len =  (0,4,2,12), repeat=False,random_choice=True)
+# multiple_seq_maker()
 
 
+#%%
 def main(true_counts, decoy_counts):
     true_seqs = []
     decoys = []
@@ -241,10 +259,8 @@ def main(true_counts, decoy_counts):
 
 # %%
 if __name__ == "__main__":
-    true_counts = 1000
-    decoy_counts = 99  # per true_counts
+    true_counts = args.sample_num
+    decoy_counts = args.decoys  # per true_counts
 
     main(true_counts, decoy_counts)
 
-
-# %%
