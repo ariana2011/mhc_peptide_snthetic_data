@@ -105,10 +105,6 @@ class PeptideMhcPair():
         else:
             binding_pairs = amino_pairs
 
-        # self._min_max_checker(peptide_part_len, binding_pairs,
-        #                       self.peptide_min, self.peptide_max)
-        # self._min_max_checker(
-        #     mhc_part_len, binding_pairs, self.mhc_min, self.mhc_max)
 
         index_selection = random.choice([0, 1])
         pair_selection_mhc = 0 if index_selection == 1 else 1
@@ -220,14 +216,11 @@ class dataWrapper():
     def __init__(self, peptide_min, peptide_max, mhc_min, mhc_max, sample_count=1, decoy_count= 9, pairs = 6, binding_pos_count = 3):
         
         
-        #  peptide_part_len, mhc_part_len, peptide_min, peptide_max, mhc_min, mhc_max
+
         self.sample_count = sample_count
         self.decoy_count = decoy_count
         self.pairs =  self.random_pairs(pairs) if type(pairs) is int else pairs
-    
-        # self.peptide_part_len = peptide_part_len
-        # self.mhc_part_len = mhc_part_len
-        
+
         self.peptide_min = peptide_min
         self.peptide_max = peptide_max
         self.mhc_min = mhc_min
@@ -244,7 +237,6 @@ class dataWrapper():
 
         peptide_lenghth = sum(parts_len) + self.binding_pos_count
         
-        # print("peptide_lenghth", peptide_lenghth)
 
         if peptide_lenghth < min_len or peptide_lenghth > max_len:
             raise ValueError(
@@ -319,7 +311,7 @@ class dataWrapper():
         #     # print(i,j)
         #     for b,d in zip(df_decoys['peptide'].values, df_decoys['mhc'].values):
         #         if i == b and j == d:
-        #             # print("khaaaak bar saram shod")
+    
         #             print(i, b)
         #             print(j, d)
 
@@ -345,13 +337,14 @@ def main():
     peptide_indeces = [2,4,3]  #for manual indexing
     mhc_indeces =  [7,4,3]    #for manual indexing
     # mhc_indeces = [7,5,3, 30]
-    pairs = [('K', 'V'), ('K', 'L'), ('C', 'M'), ('I', 'T'), ('P', 'W'), ('A', 'M'), ('E', 'D'), ('L', 'Q'), 
-             ('S', 'N'), ('A', 'L'), ('H', 'T'), ('L', 'F'), ('F', 'M'), ('G', 'T'), ('F', 'G'), ('R', 'N'), ('D', 'M'), 
-             ('E', 'S'), ('F', 'V'), ('I', 'F'), ('Y', 'V'), ('G', 'Q'), ('W', 'W'), ('I', 'H'), ('E', 'I'), ('F', 'P'),
-             ('Q', 'H'), ('M', 'C'), ('C', 'A'), ('E', 'P'), ('K', 'D'), ('A', 'A'), ('D', 'E'), ('V', 'L'), ('R', 'V'),
-             ('G', 'M'), ('E', 'Y'), ('G', 'I'), ('G', 'R'), ('L', 'E')]
+    # pairs = [('K', 'V'), ('K', 'L'), ('C', 'M'), ('I', 'T'), ('P', 'W'), ('A', 'M'), ('E', 'D'), ('L', 'Q'), 
+    #          ('S', 'N'), ('A', 'L'), ('H', 'T'), ('L', 'F'), ('F', 'M'), ('G', 'T'), ('F', 'G'), ('R', 'N'), ('D', 'M'), 
+    #          ('E', 'S'), ('F', 'V'), ('I', 'F'), ('Y', 'V'), ('G', 'Q'), ('W', 'W'), ('I', 'H'), ('E', 'I'), ('F', 'P'),
+    #          ('Q', 'H'), ('M', 'C'), ('C', 'A'), ('E', 'P'), ('K', 'D'), ('A', 'A'), ('D', 'E'), ('V', 'L'), ('R', 'V'),
+    #          ('G', 'M'), ('E', 'Y'), ('G', 'I'), ('G', 'R'), ('L', 'E')]
     
-    pairs = pairs[:30]
+    # pairs = pairs[:30]
+    pairs = 40
     test2 = dataWrapper(min_peptide_len, max_peptide_len, min_mhc_len, max_mhc_len, sample_count = sample_num, decoy_count = decoys_ratio, pairs = pairs)
     print(test2.pairs)
     # s2 = test2.random_pairs(6)
